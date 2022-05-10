@@ -4,7 +4,7 @@
  */
 package unifitness;
 
-import java.beans.Statement;
+import java.awt.HeadlessException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,14 +13,13 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import net.proteanit.sql.DbUtils;
-import unifitness.Coachs;
-
+//import unifitness.Coachs;
 /**
  *
  * @author Sergazy
  */
 public class Members extends javax.swing.JFrame {
-
+    public String CON = "jdbc:oracle:thin:@localhost:1521/xepdb1";
     /**
      * Creates new form Members
      */
@@ -32,28 +31,33 @@ public class Members extends javax.swing.JFrame {
     Connection dbcon = null;
     PreparedStatement pdt = null;
     ResultSet rs = null, rs1 = null;
-    Statement st = null, st1 = null;
+    PreparedStatement st = null, st1 = null;
     private void DisplayMembers() {
         try {
-            dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-            st = (Statement) dbcon.createStatement();
-            rs.executeQuery("select * from MEMBERS");
+            dbcon = DriverManager.getConnection(CON, "hr","hr");
+            st = dbcon.prepareStatement("select * from MEMBERS");
+            rs = st.executeQuery();
+            
             MEMBERS.setModel(DbUtils.resultSetToTableModel(rs));
-        } catch(Exception ex) {     
+            
+            
+        } catch(SQLException ex) {     
+            System.out.println("displayMembers error: "+ex.getMessage());
         }
     }
     
     int coach_num = 0;
     private void GetCoachs() {
         try {
-            dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-            st = (Statement) dbcon.createStatement();
-            rs.executeQuery("select * from COACHS");
+            dbcon = DriverManager.getConnection(CON, "hr", "hr");
+            st = dbcon.prepareStatement("select * from COACHS");
+            rs = st.executeQuery();
             while(rs.next()) {
                 String CoachName = rs.getString("COACH_NAME");
                 MEMBER_COACH.addItem(CoachName);
             }
-        } catch(Exception ex) {     
+        } catch(SQLException ex) {     
+            System.out.println("getCoachs error: "+ex.getMessage());
         }
     }
     @SuppressWarnings("unchecked")
@@ -414,13 +418,15 @@ public class Members extends javax.swing.JFrame {
 int member_num = 0;
     private void CountMembers() {
         try {
-            dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-            st1 = (Statement) dbcon.createStatement();
-            rs1.executeQuery("select MAX(MEMBER_ID) from MEMBERS");
+            dbcon = DriverManager.getConnection(CON, "hr", "hr");
+            st1 = dbcon.prepareStatement("select MAX(MEMBER_ID) from MEMBERS");
+            rs1 = st1.executeQuery();
             rs1.next();
             member_num = rs1.getInt(1)+1;
-        } catch(Exception ex) {     
-        }
+        } catch(SQLException ex) { 
+            System.out.println(ex.getMessage());
+        }    
+        
     }
     private void AddBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AddBtnMouseClicked
         if(MEMBER_NAME.getText().isEmpty() || MEMBER_PHONE.getText().isEmpty() || MEMBER_AGE.getText().isEmpty() || MEMBER_AMOUNT.getText().isEmpty() || MEMBER_GENDER.getSelectedIndex() == -1 || MEMBER_COACH.getSelectedIndex() == -1 || MEMBER_TIMING.getSelectedIndex() == -1)
@@ -430,9 +436,9 @@ int member_num = 0;
         else {
             try {
                 CountMembers();
-                dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-                PreparedStatement Add = dbcon.prepareStatement("INSERT INTO MEMBERS value(?,?,?,?,?,?,?,?)");
-                Add.setInt(1, 1);
+                dbcon = DriverManager.getConnection(CON, "hr", "hr");
+                PreparedStatement Add = dbcon.prepareStatement("INSERT INTO MEMBERS values(?,?,?,?,?,?,?,?)");
+                Add.setInt(1, member_num);
                 Add.setString(2, MEMBER_NAME.getText());
                 Add.setString(3, MEMBER_PHONE.getText());
                 Add.setInt(4, Integer.valueOf(MEMBER_AGE.getText()));
@@ -441,11 +447,12 @@ int member_num = 0;
                 Add.setString(7, MEMBER_TIMING.getSelectedItem().toString());
                 Add.setString(8, MEMBER_GENDER.getSelectedItem().toString());
                 int row = Add.executeUpdate();
-                JOptionPane.showMessageDialog(this, "Trainer saved!");
+                JOptionPane.showMessageDialog(this, "Member saved!");
                 dbcon.close();
                 DisplayMembers();
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, ex);
+            }
         }
     }//GEN-LAST:event_AddBtnMouseClicked
 
@@ -454,22 +461,23 @@ int member_num = 0;
             JOptionPane.showMessageDialog(this, "Select the MEMBER to edit!");
         } else {
             try {
-               dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-               String query = "Update MEMBERS set MEMBER_NAME=?, COACH_NAME=?, MEMBER_PHONE=?, MEMBER_AGE=?, MEMBER_AMOUNT=?, MEMBER_COACH=?, MEMBER_TIMING, MEMBER_GENDER where MEMBERS_ID=?";
+               dbcon = DriverManager.getConnection(CON, "hr", "hr");
+               String query = "Update MEMBERS set   MEMBER_NAME=?, MEMBER_PHONE=?, MEMBER_AGE=?, MEMBER_AMOUNT=?, MEMBER_COACH=?, MEMBER_TIMING=?, MEMBER_GENDER=? where MEMBER_ID=?";
                PreparedStatement edit = dbcon.prepareStatement(query);
-               edit.setInt(1, member_num);
-               edit.setString(2, MEMBER_NAME.getText());
-               edit.setString(3, MEMBER_PHONE.getText());
-               edit.setInt(4, Integer.valueOf(MEMBER_AGE.getText()));
-               edit.setInt(5, Integer.valueOf(MEMBER_AMOUNT.getText()));
-               edit.setString(6, MEMBER_COACH.getSelectedItem().toString());
-               edit.setString(7, MEMBER_TIMING.getSelectedItem().toString());
-               edit.setString(8, MEMBER_GENDER.getSelectedItem().toString());
+               //edit.setInt(1, member_num);
+               edit.setString(1, MEMBER_NAME.getText());
+               edit.setString(2, MEMBER_PHONE.getText());
+               edit.setInt(3, Integer.valueOf(MEMBER_AGE.getText()));
+               edit.setInt(4, Integer.valueOf(MEMBER_AMOUNT.getText()));
+               edit.setString(5, MEMBER_COACH.getSelectedItem().toString());
+               edit.setString(6, MEMBER_TIMING.getSelectedItem().toString());
+               edit.setString(7, MEMBER_GENDER.getSelectedItem().toString());
+               edit.setInt(8,Key);
                int row = edit.executeUpdate();
                JOptionPane.showMessageDialog(this, "Member Updated!");
                dbcon.close();
                DisplayMembers();
-            } catch(Exception ex) {
+            } catch(HeadlessException | NumberFormatException | SQLException ex) {
                 JOptionPane.showMessageDialog(this, ex);
             }
         }
@@ -493,13 +501,13 @@ int Key = 0;
            JOptionPane.showMessageDialog(this, "Select the Member to DELETE");
         } else {
             try {
-               dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
+               dbcon = DriverManager.getConnection(CON, "hr", "hr");
                String query = "DELETE from MEMBERS where MEMBER_ID="+Key;
-               Statement delete = (Statement) dbcon.createStatement();
-               delete.executeQuery(query);
+               PreparedStatement delete =  dbcon.prepareStatement(query);
+               delete.executeQuery();
                JOptionPane.showMessageDialog(this, "Member DELETED");
                DisplayMembers();
-            } catch(Exception ex) {
+            } catch(HeadlessException | SQLException ex) {
                 JOptionPane.showMessageDialog(this, ex);
             }
         }
@@ -533,10 +541,8 @@ int Key = 0;
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Members().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new Members().setVisible(true);
         });
     }
 

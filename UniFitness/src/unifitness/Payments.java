@@ -4,21 +4,22 @@
  */
 package unifitness;
 
-import java.beans.Statement;
+//import java.beans.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import net.proteanit.sql.DbUtils;
-import unifitness.Coachs;
-import unifitness.Members;
+//import unifitness.Coachs;
+//import unifitness.Members;
 
 /**
  *
  * @author Sergazy
  */
 public class Payments extends javax.swing.JFrame {
-
+    public String CON = "jdbc:oracle:thin:@localhost:1521/xepdb1";
     /**
      * Creates new form Payments
      */
@@ -31,28 +32,30 @@ public class Payments extends javax.swing.JFrame {
     Connection dbcon = null;
     PreparedStatement pdt = null;
     ResultSet rs = null, rs1 = null;
-    Statement st = null, st1 = null;
+    PreparedStatement st = null, st1 = null;
     private void DisplayPayment() {
         try {
-            dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-            st = (Statement) dbcon.createStatement();
-            rs.executeQuery("select * from FINANCE");
+            dbcon = DriverManager.getConnection(CON, "hr", "hr");
+            st = dbcon.prepareStatement("select * from FINANCE");
+            rs = st.executeQuery();
             PAYMENTS.setModel(DbUtils.resultSetToTableModel(rs));
-        } catch(Exception ex) {     
+        } catch(SQLException ex) {     
+            System.out.println("displayPayment error: "+ex.getMessage());
         }
     }
 
     int coach_num = 0;
     private void GetMembers() {
         try {
-            dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-            st = (Statement) dbcon.createStatement();
-            rs.executeQuery("select * from MEMBERS");
+            dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xepdb1", "hr", "hr");
+            st = dbcon.prepareStatement("select * from MEMBERS");
+            rs = st.executeQuery();
             while(rs.next()) {
                 String MemberName = rs.getString("MEMBER_NAME");
                 PAY_MEMBER.addItem(MemberName);
             }
-        } catch(Exception ex) {     
+        } catch(SQLException ex) {  
+            System.out.println("get_members error: "+ex.getMessage());
         }
     }
     @SuppressWarnings("unchecked")
@@ -86,7 +89,6 @@ public class Payments extends javax.swing.JFrame {
 
         jPanel2.setBackground(new java.awt.Color(0, 0, 102));
 
-        jLabel2.setIcon(new javax.swing.ImageIcon("D:\\Sergazy\\Downloads\\gymicon.png")); // NOI18N
         jLabel2.setText("jLabel2");
 
         jLabel3.setFont(new java.awt.Font("Franklin Gothic Medium Cond", 0, 24)); // NOI18N
@@ -376,10 +378,8 @@ public class Payments extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Payments().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new Payments().setVisible(true);
         });
     }
 

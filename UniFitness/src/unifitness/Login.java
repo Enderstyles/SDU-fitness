@@ -4,14 +4,16 @@
  */
 package unifitness;
 
+import java.awt.HeadlessException;
 import java.beans.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
-import net.proteanit.sql.DbUtils;
-import unifitness.Members;
+//import net.proteanit.sql.DbUtils;
+//import unifitness.Members;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 /**
@@ -19,7 +21,7 @@ import javax.swing.SwingConstants;
  * @author Sergazy
  */
 public class Login extends javax.swing.JFrame {
-    
+    public String CON = "jdbc:oracle:thin:@localhost:1521/xepdb1";
     Connection dbcon = null;
     PreparedStatement pdt = null;
     ResultSet rs = null;
@@ -205,7 +207,7 @@ public class Login extends javax.swing.JFrame {
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
         try {
-            dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
+            dbcon = DriverManager.getConnection(CON, "hr", "hr");
             String sql = "SELECT * FROM LOGIN WHERE USERNAME=? AND PASSWORD=?";
             pdt = dbcon.prepareStatement(sql);
             pdt.setString(1, user.getText());
@@ -223,7 +225,8 @@ public class Login extends javax.swing.JFrame {
                 user.setText("");
                 pass.setText("");
             }
-        } catch(Exception ex) {    
+        } catch(HeadlessException | SQLException ex) {    
+            System.out.println(ex.getMessage());
             JOptionPane.showMessageDialog(null, ex);
         }
     }//GEN-LAST:event_jButton1MouseClicked
@@ -244,22 +247,16 @@ public class Login extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        
+        //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Login().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new Login().setVisible(true);
         });
     }
 

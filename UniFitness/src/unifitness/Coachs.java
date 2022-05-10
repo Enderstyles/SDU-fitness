@@ -4,9 +4,10 @@
  */
 package unifitness;
 
-import DBFinalProject.Login;
-import DBFinalProject.Payments;
-import java.beans.Statement;
+//import unifitness.Login;
+//import unifitness.Payments;
+import java.awt.HeadlessException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,7 +22,7 @@ import net.proteanit.sql.DbUtils;
  * @author Sergazy
  */
 public class Coachs extends javax.swing.JFrame {
-
+       public String CON = "jdbc:oracle:thin:@localhost:1521/xepdb1";
     /**
      * Creates new form Coachs
      */
@@ -348,25 +349,28 @@ public class Coachs extends javax.swing.JFrame {
     Connection dbcon = null;
     PreparedStatement pdt = null;
     ResultSet rs = null, rs1 = null;
-    Statement st = null, st1 = null;
+    PreparedStatement st = null, st1 = null;
     private void DisplayCoachs() {
         try {
-            dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-            st = (Statement) dbcon.createStatement();
-            rs.executeQuery("select * from COACHS");
+            dbcon = DriverManager.getConnection(CON, "hr", "hr");
+            st = dbcon.prepareStatement("select * from COACHS");
+            
+            rs = st.executeQuery();
             COACHS.setModel(DbUtils.resultSetToTableModel(rs));
-        } catch(Exception ex) {     
+        } catch(SQLException ex) {     
+            System.out.println("displayCoach error:" + ex.getMessage());
         }
     }
     int coach_num = 0;
     private void CountCoachs() {
         try {
-            dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-            st1 = (Statement) dbcon.createStatement();
-            rs1.executeQuery("select MAX(COACHS_ID) from COACHS");
+            dbcon = DriverManager.getConnection(CON, "hr", "hr");
+            st1 = dbcon.prepareStatement("select MAX(COACH_ID) from COACHS");
+            rs1 = st1.executeQuery();
             rs1.next();
             coach_num = rs1.getInt(1)+1;
-        } catch(Exception ex) {     
+        } catch(SQLException ex) {     
+            System.out.println("countCoach error:" + ex.getMessage());
         }
     }
     private void AddBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AddBtnMouseClicked
@@ -378,9 +382,9 @@ public class Coachs extends javax.swing.JFrame {
             try {
                 Class.forName("oracle.jdbc.OracleDriver");
                 CountCoachs();
-                dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-                PreparedStatement Add = dbcon.prepareStatement("INSERT INTO COACHS(COACH_ID, COACH_NAME, COACH_PHONE, COACH_AGE, COACH_ADDRESS, COACH_GENDER) value(?,?,?,?,?,?)");
-                Add.setInt(1, 1);
+                dbcon = DriverManager.getConnection(CON, "hr", "hr");
+                PreparedStatement Add = dbcon.prepareStatement("INSERT INTO COACHS(COACH_ID,COACH_NAME, COACH_PHONE, COACH_AGE, COACH_ADDRESS, COACH_GENDER) values(?,?,?,?,?,?)");
+                Add.setInt(1, coach_num);
                 Add.setString(2, COACH_NAME.getText());
                 Add.setString(3, COACH_PHONE.getText());
                 Add.setInt(4, Integer.valueOf(COACH_AGE.getText()));
@@ -414,13 +418,13 @@ int Key = 0;
            JOptionPane.showMessageDialog(this, "Select the Coach to DELETE");
         } else {
             try {
-               dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
+               dbcon = DriverManager.getConnection(CON, "hr", "hr");
                String query = "DELETE from COACHS where COACH_ID="+Key;
-               Statement delete = (Statement) dbcon.createStatement();
-               delete.executeQuery(query);
+               PreparedStatement delete = dbcon.prepareStatement(query);
+               delete.executeQuery();
                JOptionPane.showMessageDialog(this, "Coach DELETED");
                DisplayCoachs();
-            } catch(Exception ex) {
+            } catch(HeadlessException | SQLException ex) {
                 JOptionPane.showMessageDialog(this, ex);
             }
         }
@@ -431,8 +435,8 @@ int Key = 0;
             
         } else {
             try {
-               dbcon = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "sergo17", "123qwe");
-               String query = "Update COACHS set COACH_NAME=?, COACH_NAME=?, COACH_PHONE=?, COACH_AGE=?, COACH_ADDRESS=?, COACH_GENDER=? where COACH_ID=?";
+               dbcon = DriverManager.getConnection(CON, "hr", "hr");
+               String query = "Update COACHS set COACH_NAME=?, COACH_PHONE=?, COACH_AGE=?, COACH_ADDRESS=?, COACH_GENDER=? where COACH_ID=?";
                PreparedStatement edit = dbcon.prepareStatement(query);
                edit.setString(1, COACH_NAME.getText());
                edit.setString(2, COACH_PHONE.getText());
@@ -444,7 +448,8 @@ int Key = 0;
                JOptionPane.showMessageDialog(this, "Trainer Updated!");
                dbcon.close();
                DisplayCoachs();
-            } catch(Exception ex) {
+            } catch(HeadlessException | NumberFormatException | SQLException ex) {
+                System.out.println("coach update error:" + ex.getMessage());
                 JOptionPane.showMessageDialog(this, ex);
             }
         }

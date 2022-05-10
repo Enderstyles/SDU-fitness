@@ -2,11 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package DBFinalProject;
+package unifitness;
 
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
-import unifitness.Login;
+//import unifitness.Login;
 
 /**
  *
@@ -112,15 +112,13 @@ public class Cover extends javax.swing.JFrame {
                 
             }
             Thread.sleep(100);
-        } catch(Exception ex) {
-            
+        } catch(InterruptedException ex) {
+            System.out.println("main error"+ ex.getMessage());
         }
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Cover().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new Cover().setVisible(true);
         });
         
         new Login().setVisible(true);
