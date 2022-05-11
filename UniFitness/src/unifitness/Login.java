@@ -84,7 +84,7 @@ public class Login extends javax.swing.JFrame {
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Username");
 
-        jLabel5.setIcon(new javax.swing.ImageIcon("D:\\Sergazy\\Downloads\\logincover.png")); // NOI18N
+        jLabel5.setIcon(new javax.swing.ImageIcon("E:\\Git\\DB2-FinalProject\\UniFitness\\pics\\logincover.png")); // NOI18N
         jLabel5.setText("jLabel5");
 
         jButton1.setFont(new java.awt.Font("Franklin Gothic Medium Cond", 0, 18)); // NOI18N
@@ -167,7 +167,7 @@ public class Login extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1)
-                .addGap(279, 279, 279))
+                .addGap(300, 300, 300))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -214,7 +214,7 @@ public class Login extends javax.swing.JFrame {
             pdt.setString(2, pass.getText());
             rs = pdt.executeQuery();
             
-            JProgressBar progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
+            //JProgressBar progressBar = new JProgressBar(SwingConstants.HORIZONTAL);
             
             if(rs.next()) {
                 JOptionPane.showMessageDialog(null, "Success");

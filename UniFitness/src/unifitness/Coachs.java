@@ -68,7 +68,7 @@ public class Coachs extends javax.swing.JFrame {
 
         jPanel2.setBackground(new java.awt.Color(0, 0, 102));
 
-        jLabel2.setIcon(new javax.swing.ImageIcon("D:\\Sergazy\\Downloads\\gymicon.png")); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon("E:\\Git\\DB2-FinalProject\\UniFitness\\pics\\gymicon.png")); // NOI18N
         jLabel2.setText("jLabel2");
 
         jLabel3.setFont(new java.awt.Font("Franklin Gothic Medium Cond", 0, 24)); // NOI18N
@@ -103,17 +103,13 @@ public class Coachs extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(57, 57, 57)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(57, 57, 57)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel6)))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(73, 73, 73)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(62, Short.MAX_VALUE))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel6))
+                .addContainerGap(78, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -353,6 +349,7 @@ public class Coachs extends javax.swing.JFrame {
     private void DisplayCoachs() {
         try {
             dbcon = DriverManager.getConnection(CON, "hr", "hr");
+            dbcon.setAutoCommit(true);
             st = dbcon.prepareStatement("select * from COACHS");
             
             rs = st.executeQuery();
@@ -365,6 +362,7 @@ public class Coachs extends javax.swing.JFrame {
     private void CountCoachs() {
         try {
             dbcon = DriverManager.getConnection(CON, "hr", "hr");
+            dbcon.setAutoCommit(true);
             st1 = dbcon.prepareStatement("select MAX(COACH_ID) from COACHS");
             rs1 = st1.executeQuery();
             rs1.next();
@@ -383,6 +381,7 @@ public class Coachs extends javax.swing.JFrame {
                 Class.forName("oracle.jdbc.OracleDriver");
                 CountCoachs();
                 dbcon = DriverManager.getConnection(CON, "hr", "hr");
+                dbcon.setAutoCommit(true);
                 PreparedStatement Add = dbcon.prepareStatement("INSERT INTO COACHS(COACH_ID,COACH_NAME, COACH_PHONE, COACH_AGE, COACH_ADDRESS, COACH_GENDER) values(?,?,?,?,?,?)");
                 Add.setInt(1, coach_num);
                 Add.setString(2, COACH_NAME.getText());
@@ -392,6 +391,7 @@ public class Coachs extends javax.swing.JFrame {
                 Add.setString(6, COACH_GENDER.getSelectedItem().toString());
                 int row = Add.executeUpdate();
                 JOptionPane.showMessageDialog(this, "Trainer saved!");
+                //dbcon.commit();
                 dbcon.close();
                 DisplayCoachs();
             } catch (SQLException ex) {
@@ -419,6 +419,7 @@ int Key = 0;
         } else {
             try {
                dbcon = DriverManager.getConnection(CON, "hr", "hr");
+               dbcon.setAutoCommit(true);
                String query = "DELETE from COACHS where COACH_ID="+Key;
                PreparedStatement delete = dbcon.prepareStatement(query);
                delete.executeQuery();
